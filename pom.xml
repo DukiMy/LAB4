@@ -1,0 +1,172 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Projektkoordinater (parent aggregator) -->
+  <groupId>se.gu.lab</groupId>
+  <artifactId>LAB4</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <!-- Gör detta till en parent/aggregator (ingen egen JAR byggs här) -->
+  <packaging>pom</packaging>
+
+  <name>LAB4</name>
+  <description>Multi-modul projekt för kursen OOP design på GU/Chalmers</description>
+  <url>https://github.com/dukimy/LAB4</url>
+
+  <!-- Barnmoduler som byggs när man kör Maven i rotprojektet -->
+  <modules>
+    <module>model</module>
+    <module>ui</module>
+  </modules>
+
+  <developers>
+    <developer>
+      <name>Durim Miziraj</name>
+      <email>gusmizdu@student.gu.se</email>
+      <organization>Göteborgs universitet</organization>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:https://github.com/dukimy/LAB4.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com:dukimy/LAB4.git</developerConnection>
+    <url>https://github.com/dukimy/LAB4</url>
+  </scm>
+
+  <!-- Delade konfigurationer och versionsnummer för alla moduler -->
+  <properties>
+    <maven.compiler.release>25</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <junit.version>5.10.2</junit.version>
+    <compiler.version>3.12.1</compiler.version>
+    <surefire.version>3.2.5</surefire.version>
+    <jacoco.version>0.8.14</jacoco.version>
+    <commons-lang3.version>3.17.0</commons-lang3.version>
+    <exec-maven-plugin.version>3.6.1</exec-maven-plugin.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>run-ui</id>
+      <modules>
+        <module>model</module>
+        <module>ui</module>
+      </modules>
+    </profile>
+  </profiles>
+
+
+  <!-- Centralt versionsstyre för beroenden (moduler väljer själva vad de använder) -->
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>se.gu.lab</groupId>
+        <artifactId>model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${commons-lang3.version}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- Centralt versionsstyre för plugins (moduler väljer själva vilka de aktiverar) -->
+  <build>
+
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>${exec-maven-plugin.version}</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+
+        <!--
+          Styr Java-kompileringen:
+          - Anger vilken Java-version som används
+          - Säkerställer konsekvent bytecode mellan lokala byggen och CI
+        -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${compiler.version}</version>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <encoding>${project.build.sourceEncoding}</encoding>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec-maven-plugin.version}</version>
+        </plugin>
+
+          <!--
+            Kör enhetstester (JUnit):
+            - Upptäcker och exekverar testklasser
+            - Stoppar bygget vid testfel
+            - Krävs för JaCoCo och CI
+          -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire.version}</version>
+          </plugin>
+
+          <!--
+            JaCoCo – kodtäckningsanalys:
+            - Instrumenterar koden vid testkörning
+            - Genererar täckningsrapporter under 'verify'
+            - Används för att utvärdera testkvalitet
+          -->
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco.version}</version>
+            <executions>
+
+              <execution>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+
+              <execution>
+                <id>report</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+
+            </executions>
+          </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>

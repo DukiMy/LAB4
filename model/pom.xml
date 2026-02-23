@@ -1,0 +1,80 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <!--
+    Referens till rot-pom:
+    - Ärver gemensamma versionsnummer, plugins och beroenden
+    - Säkerställer konsekvent konfiguration mellan alla moduler
+    - Anväder relativ katalogadress för maskinoberoende
+  -->
+  <parent>
+    <groupId>se.gu.lab</groupId>
+    <artifactId>LAB4</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <!--
+    Denna sub-modul:
+    - Innehåller domänmodellen (Model i MVC)
+    - Byggs som ett återanvändbart JAR
+    - Är helt oberoende av UI och presentationslager
+  -->
+  <artifactId>model</artifactId>
+  <packaging>jar</packaging>
+
+  <name>LAB4-Model</name>
+  <description>Domän model med enhetstester</description>
+
+  <!--
+    Beroenden:
+    - Endast sådant som krävs för domänlogik och testning
+    - Inga UI- eller ramverksberoenden
+  -->
+  <dependencies>
+    <!--
+      JUnit 5:
+      - Används för enhetstester av domänlogiken
+      - Scope 'test' säkerställer att beroendet inte följer med i produktion
+    -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      Apache Commons Lang:
+      - Hjälpklasser för robust och uttrycksfull kod
+      - Innehåller bl.a.:
+        * Validate (kontraktskontroller)
+        * Builders (equals, hashCode, toString, compareTo)
+      - Används för att förbättra läsbarhet och OOP-design
+    -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <!-- Kör tester i denna modul (använder version/config från parent pluginManagement) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+      </plugin>
+
+      <!-- Genererar JaCoCo-rapport i denna modul -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
