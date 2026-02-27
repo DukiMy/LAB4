@@ -1,23 +1,8 @@
 # oopd-gu-chalmers Lab 3
 Lab assignment 3 in the course Object-oriented Programming and Design, GU/Chalmers
 
-## Instruktioner för byggning
-Från root-katalogen, skriv följande kommando.
-```
-mvn compile
-```
-
-## Instruktioner för körning
-Från root-katalogen, skriv följande kommando.
-```
-mvn -pl :ui -am -Prun-ui validate
-```
-
-## Instruktioner för testning
-Från root-katalogen, skriv följande kommando.
-```
-mvn clean verify
-```
+## Instruktioner för körning. 
+```mvn -pl app exec:java```
 
 ## Testresultat med coverage
 [https://dukimy.github.io/LAB3/](https://dukimy.github.io/LAB3)

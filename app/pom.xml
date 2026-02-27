@@ -1,5 +1,5 @@
 <!-- 
-  model/pom.xml 
+  app/pom.xml 
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -15,34 +15,33 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>model</artifactId>
+  <artifactId>app</artifactId>
   <packaging>jar</packaging>
 
-  <name>LAB4-Model</name>
+  <name>LAB4-App</name>
 
   <dependencies>
+    <!-- Uses UI (and UI pulls model transitively) -->
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
+      <groupId>se.gu.lab</groupId>
+      <artifactId>ui</artifactId>
     </dependency>
 
+    <!-- Optional but fine: keep direct dependency if App.java instantiates domain types -->
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
+      <groupId>se.gu.lab</groupId>
+      <artifactId>model</artifactId>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <configuration>
+          <mainClass>lab4.app.App</mainClass>
+        </configuration>
       </plugin>
     </plugins>
   </build>

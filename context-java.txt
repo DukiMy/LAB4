@@ -1,0 +1,2012 @@
+package lab4.interfaces;
+
+public interface Car extends Movable {
+
+  /*
+      There are no methods that separate Car behavior from Vehicle behaviour.
+      This is used purely as a way to distinguish the cars from the
+      ConditionallyMovableVehicle.
+
+      Car marks vehicles that are permitted on carloaders.
+   */
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ *
+ *  Gränssnittet avgränsar beteenden hos objekt som kan lasta in andra objekt.
+ */
+
+package lab4.interfaces;
+
+public interface Loadable {
+  void load();
+  void unLoad();
+  void printLoad();
+  boolean canLoad();
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4.interfaces;
+
+public interface Movable {
+  public abstract void move();
+  public abstract void turnLeft();
+  public abstract void turnRight();
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ *
+ *  Gränssnittet avgränsar beteendet hos objekt med ned- och uppfällbara
+ *  rampar.
+ */
+
+package lab4.interfaces;
+
+public interface RampOperated extends Loadable {
+  void lowerRamp();
+  void raiseRamp();
+  boolean isRampLowered();
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ *
+ *  Gränssnittet avgränsar beteenden hos objekt med tippbara flak.
+ */
+
+package lab4.interfaces;
+
+public interface Tippable extends Movable{
+
+  void setTipBedAngle(byte angle);
+  byte getTipBedAngle();
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ *
+ *  Gränssnittet avgränsar beteenden hos objekt med avstängbar turbo.
+ */
+
+package lab4.interfaces;
+
+public interface TurboChargable extends Movable {
+  public void setTurbo(boolean state);
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.finite;
+
+abstract class ConditionallyMovableVehicle extends Vehicle {
+
+  public ConditionallyMovableVehicle (
+    final int nrDoors,
+    final double enginePower,
+    final Color color,
+    final String modelName,
+    final Point2D point
+  ) { super(nrDoors, enginePower, color, modelName, point); }
+
+  protected abstract boolean canMove();
+
+  @Override
+  public void move() { if (canMove()) super.move(); }
+
+  private static void validate(double d) {
+    isTrue(d >= 0.0d);
+    finite(d);
+  }
+
+  @Override
+  public void gas(final double speedIncrease) {
+    validate(speedIncrease);
+    if (canMove()) super.gas(speedIncrease);
+  }
+
+  protected abstract double speedFactor();
+
+  @Override
+	protected double increasedSpeedFactor(final double increase) {
+    validate(increase);
+    return getCurrentSpeed() + speedFactor() * increase;
+  }
+
+  @Override
+  protected double decreasedSpeedFactor(final double decrease) {
+    validate(decrease);
+    return getCurrentSpeed() - speedFactor() * decrease;
+  }
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import java.util.Set;
+import java.util.HashSet;
+import java.util.function.Predicate;
+
+import java.awt.geom.Point2D;
+
+import static java.util.Objects.requireNonNull;
+
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.validState;
+import static org.apache.commons.lang3.Validate.finite;
+
+public abstract class GameObject {
+  private static final Set<GameObject> gameObjects = new HashSet<>();
+  private final Point2D pos;
+
+  protected GameObject(Point2D point) {
+    Double x = point.getX();
+    Double y = point.getY();
+    isTrue((x >= 0.0d) && (y >= 0.0d));
+    finite(x);
+    finite(y);
+
+    pos = new Point2D.Double(x, y);
+    gameObjects.add(this);
+  }
+
+  public double getX() { return pos.getX(); }
+
+  public double getY() { return pos.getY(); }
+
+  public Point2D getPoint() {
+    return new Point2D.Double(pos.getX(), pos.getY());
+  }
+
+  public void mutatePoint(final double x, final double y) {
+    finite(x);
+    finite(y);
+
+    pos.setLocation(x, y);
+  }
+
+  public <T extends Vehicle> T getClosestInRange(
+    final Class<T> type,
+    final double loadRadius,
+    final Predicate<? super T> allowed) {
+
+    requireNonNull(type);
+    isTrue(loadRadius > 1);
+    requireNonNull(allowed);
+
+    double maxDistSq = loadRadius * loadRadius;
+
+    T best = null;
+    double bestD2 = Double.POSITIVE_INFINITY;
+
+    for (GameObject other : gameObjects) {
+      if (other.equals(this)) continue;
+      if (!type.isInstance(other)) continue;
+
+      T candidate = type.cast(other);
+      if (!allowed.test(candidate)) continue;
+
+      double d2 = pos.distanceSq(other.pos);
+      if (d2 <= maxDistSq && d2 < bestD2) {
+        bestD2 = d2;
+        best = candidate;
+      }
+    }
+
+    return best;
+  }
+
+  public void destroy() {
+    validState(gameObjects.contains(this));
+    gameObjects.remove(this);
+  }
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ *
+ *  Klassen är en konkret representation av ett Garage.
+ *  Objekt av denna klass har...
+ *    - Position
+ *    - Datastruktur för hållande av bilar.
+ *    - Ett maxantal bilar
+ *  Objekt av denna klass skall kunna...
+ *    - Lasta och lossa bilar
+ *    -
+ */
+
+package lab4;
+
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.requireNonNull;
+
+import static java.lang.System.out;
+import static org.apache.commons.lang3.Validate.isTrue;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
+
+public final class Garage<T extends Vehicle> extends GameObject {
+
+  private static final double LOAD_RADIUS = 10.0d;
+
+  private final int maxCapacity;
+  private final List<T> parkingLot = new ArrayList<>();
+  private final Class<T> type;
+
+  public Garage(
+    final Class<T> type,
+    final Point2D point,
+    final int maxCapacity) {
+    super(point);
+
+    requireNonNull(type);
+    isTrue(1 <= maxCapacity && maxCapacity <= 127);
+
+    this.type = type;
+    this.maxCapacity = maxCapacity;
+  }
+
+  public int getFreeSlots() {
+    return maxCapacity - parkingLot.size();
+  }
+
+  public boolean load() {
+    if (getFreeSlots() <= 0) {
+      out.println("The garage is full!");
+      return false;
+    }
+
+    T v = getClosestInRange(type, LOAD_RADIUS, x -> !parkingLot.contains(x));
+    if (v == null) {
+      return false;
+    }
+
+    parkingLot.add(v);
+    v.mutatePoint(getX(), getY());
+    return true;
+  }
+
+  public void unLoad(final T vehicle) {
+    requireNonNull(vehicle);
+
+    if (parkingLot.remove(vehicle)) {
+      vehicle.mutatePoint(getX() - 1.0, getY());
+    } else {
+      out.println("That vehicle is not in the garage!");
+    }
+  }
+
+  public void printLoad() {
+    StringBuilder sb = new StringBuilder();
+
+    for (T t : parkingLot) sb.append(t).append('\n');
+    if (sb.length() == 0) sb.append("Parkinglot is empty.");
+
+    out.println(sb);
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
+  }
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import lab4.interfaces.Car;
+import lab4.interfaces.TurboChargable;
+
+import java.awt.geom.Point2D;
+import static java.awt.Color.RED;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
+
+
+public final class Saab95 extends Vehicle implements Car, TurboChargable{
+
+	private boolean turboOn;
+
+	public Saab95() {
+		super(
+      /* Number of doors */ 2,
+      /* Engine power    */ 125.0d,
+      /* Vehicle Color   */ RED,
+      /* Vehicle model   */ "Saab95",
+      /* Point           */ new Point2D.Double(0.0d, 0.0d)
+    );
+
+    turboOn = false;
+	}
+
+	public void setTurbo(final boolean state) { turboOn = state; }
+
+	private double speedFactor() {
+		return getEnginePower() * 0.01d * (turboOn ? 1.3d : 1.0d);
+	}
+
+  @Override
+	protected double increasedSpeedFactor(final double speedIncrease) {
+    return getCurrentSpeed() + speedFactor() * speedIncrease;
+	}
+
+	@Override
+	protected double decreasedSpeedFactor(final double speedDecrease) {
+    return getCurrentSpeed() - speedFactor() * speedDecrease;
+	}
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
+  }
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import lab4.interfaces.Tippable;
+
+import java.awt.geom.Point2D;
+import static java.awt.Color.BLUE;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
+
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.validState;
+
+
+
+public final class Scania extends ConditionallyMovableVehicle implements Tippable {
+  private byte tipBedAngle = 0;
+
+  public Scania() {
+    super(
+      /* Number of doors */ 2,
+      /* Engine power    */ 200.0d,
+      /* Vehicle color   */ BLUE,
+      /* Vehicle model   */ "Scania",
+      /* X position      */ new Point2D.Double(0.0d, 0.0d)
+     );
+
+    tipBedAngle = 0;
+  }
+
+  public void setTipBedAngle(final byte angle) {
+    double speed = getCurrentSpeed();
+
+    isTrue(0 <= angle && angle <= 70);
+    validState(speed == 0.0d);
+
+    tipBedAngle = angle;
+  }
+
+  public byte getTipBedAngle() { return tipBedAngle; }
+
+  @Override
+  public boolean canMove() { return tipBedAngle == 0; }
+
+  @Override
+  protected double speedFactor() { return getEnginePower() * 0.01d; }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
+  }
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import lab4.interfaces.Movable;
+
+import java.awt.Color;
+import java.awt.geom.Point2D;
+
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.util.Objects.requireNonNull;
+
+import static org.apache.commons.lang3.Validate.inclusiveBetween;
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.finite;
+import static org.apache.commons.lang3.Validate.notBlank;
+
+public abstract class Vehicle extends GameObject implements Movable {
+
+  private static final double TURN_RATE = 0.1d;
+	private final int nrDoors;
+  private double direction;
+	private double enginePower;
+	private double currentSpeed;
+	private Color color;
+	private String modelName;
+
+	protected Vehicle(
+    final int nrDoors,
+    final double enginePower,
+    final Color color,
+    final String modelName,
+    final Point2D point) {
+    super(point);
+
+    inclusiveBetween(1, 5, nrDoors);
+    isTrue(enginePower > 0.0d);
+    finite(enginePower);
+    requireNonNull(color);
+    notBlank(modelName);
+    finite(point.getX());
+    finite(point.getY());
+
+    this.direction = 0.0d;
+		this.nrDoors = nrDoors;
+		this.enginePower = enginePower;
+		this.color = color;
+		this.modelName = modelName;
+	  stopEngine();
+  }
+
+  public double getDirection() { return direction; }
+
+	public int getNrDoors() { return nrDoors; }
+
+	public double getEnginePower() { return enginePower; }
+
+	public double getCurrentSpeed() { return currentSpeed; }
+
+	public int getColor() { return color.getRGB(); }
+
+  public String getModelName() { return modelName; }
+
+  public void setColor(final int c) { color = new Color(c); }
+
+	public void startEngine() { setCurrentSpeed(0.1d); }
+
+	public void stopEngine() { setCurrentSpeed(0.0d); }
+
+  public void turnLeft() { direction += TURN_RATE; }
+
+  public void turnRight() { direction -= TURN_RATE; }
+
+  private static final void validate(
+    final double lowBound,
+    final double highBound,
+    final double arg) {
+
+    finite(arg);
+    isTrue(lowBound <= arg && arg <= highBound);
+  }
+
+  public void brake(final double speedDecrease) {
+    validate(0.0d, 1.0d, speedDecrease);
+    decreaseSpeed(speedDecrease);
+	}
+
+  public void gas(final double speedIncrease) {
+    validate(0.0d, 1.0d, speedIncrease);
+    increaseSpeed(speedIncrease);
+	}
+
+  public void move() {
+    super.mutatePoint(
+      super.getX() + sin(direction) * getCurrentSpeed(),
+      super.getY() + cos(direction) * getCurrentSpeed()
+    );
+  }
+
+  private void setCurrentSpeed(final double setSpeed) {
+    if (setSpeed > getEnginePower()) {
+      currentSpeed = getEnginePower();
+      return;
+
+    } else if (setSpeed < 0.0d) {
+      currentSpeed = 0.0d;
+
+    } else {
+      currentSpeed = setSpeed;
+    }
+  }
+
+	private void increaseSpeed(final double speedIncrease) {
+		setCurrentSpeed(
+      increasedSpeedFactor(speedIncrease)
+    );
+	}
+
+	private void decreaseSpeed(final double speedDecrease) {
+		setCurrentSpeed(
+      decreasedSpeedFactor(speedDecrease)
+    );
+	}
+
+  public void invertDirection() {
+  direction = direction + Math.PI;
+  direction = direction % (2.0d * Math.PI);
+  if (direction < 0.0d) direction += 2.0d * Math.PI;
+}
+
+
+  protected abstract double increasedSpeedFactor(final double speedIncrease);
+  protected abstract double decreasedSpeedFactor(final double speedDecrease);
+}
+/*
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import static java.awt.Color.BLACK;
+
+import lab4.interfaces.Car;
+
+import java.awt.geom.Point2D;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
+
+
+public final class Volvo240 extends Vehicle implements Car{
+
+	private static final double TRIM_FACTOR = 1.25d;
+
+	public Volvo240() {
+		super(
+      /* Number of doors */ 4,
+      /* Engine power    */ 100.0d,
+      /* Vehicle color   */ BLACK,
+      /* vehicle model   */ "Volvo240",
+      /* Point           */ new Point2D.Double(0.0d, 0.0d)
+     );
+	}
+
+	private double speedFactor() {
+		return getEnginePower() * 0.01d * TRIM_FACTOR;
+	}
+
+  @Override
+	protected double increasedSpeedFactor(final double speedIncrease) {
+    return Math.min(getCurrentSpeed() + speedFactor() * speedIncrease, getEnginePower());
+	}
+
+	@Override
+	protected double decreasedSpeedFactor(final double speedDecrease) {
+    return Math.max(getCurrentSpeed() - speedFactor() * speedDecrease, 0.0d);
+	}
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
+  }
+}
+/**
+ *  Utfärdat av Durim Miziraj
+ *  Kontakt: gusmizdu@student.gu.se
+ */
+
+package lab4;
+
+import lab4.interfaces.Car;
+import lab4.interfaces.RampOperated;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+import static java.lang.System.out;
+
+import java.awt.geom.Point2D;
+import static java.awt.Color.YELLOW;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
+
+public final class VolvoFH16 extends ConditionallyMovableVehicle implements RampOperated {
+
+  private static final double LOAD_RADIUS = 5.0d;
+  private static final byte MAX_CAPACITY = 6;
+  private final Deque<Vehicle> cargo = new ArrayDeque<>();
+  private boolean isRampLowered;
+
+  public VolvoFH16() {
+    super(
+      /* Number of doors */ 2,
+      /* Engine power    */ 200.0d,
+      /* Vehicle color   */ YELLOW,
+      /* Vehicle model   */ "VolvoFH16",
+      /* X position      */ new Point2D.Double(0.0d, 0.0d)
+    );
+
+    raiseRamp();
+  }
+
+  public void lowerRamp() {
+    if (getCurrentSpeed() > 0) return;
+    isRampLowered = true;
+  }
+
+  public void raiseRamp() {
+    isRampLowered = false;
+  }
+
+  public boolean isRampLowered() {
+    return isRampLowered;
+  }
+
+  public boolean canLoad() {
+    return (getCurrentSpeed() == 0 && isRampLowered);
+  }
+
+  public void load() {
+    Vehicle v;
+
+    if (!canLoad()) {
+      out.println("Can not load, ramp is not lowered!");
+      return;
+    }
+
+    if (cargo.size() >= MAX_CAPACITY) {
+      out.println("Can not load, " + getModelName() +" is full!");
+      return;
+    }
+
+    v = getClosestInRange(
+      Vehicle.class,
+      LOAD_RADIUS,
+      car -> (car instanceof Car) && !cargo.contains(car)
+    );
+
+    if (v == null) return;
+
+    cargo.push(v);
+    v.mutatePoint(getX(), getY());
+  }
+
+  public void unLoad() {
+    if (!canLoad()) {
+      out.println("Can not unload, ramp is not lowered!");
+      return;
+    }
+
+    if (cargo.isEmpty()) {
+      out.println("There is nothing to unload!");
+      return;
+    }
+
+    Vehicle v = cargo.pop();
+    v.mutatePoint(getX() - 1.0, getY());
+  }
+
+  public void printLoad() {
+    StringBuilder sb = new StringBuilder();
+
+    if (cargo.isEmpty()) sb.append("Cargohold is empty.");
+    for (Vehicle v : cargo) sb.append(v).append('\n');
+    out.println(sb);
+  }
+
+	protected double speedFactor() { return getEnginePower() * 0.01d; }
+
+  @Override
+  public void move() {
+    super.move();
+    for (Vehicle v : cargo) {
+      v.mutatePoint(getX(), getY());
+    }
+  }
+
+  @Override
+  protected boolean canMove() { return !isRampLowered; }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
+  }
+}
+package lab4;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.awt.geom.Point2D;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import static java.lang.System.out;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+
+public class GarageTests {
+
+  private static final Point2D.Double ORIGO = new Point2D.Double(0.0d, 0.0d);
+  private final List<GameObject> created = new ArrayList<>();
+
+  private <T extends GameObject> T track(T obj) {
+    created.add(obj);
+    return obj;
+  }
+
+  @AfterEach
+  void cleanup() {
+    for (GameObject o : created) o.destroy();
+    created.clear();
+  }
+
+  @Test
+  void ctorRejectsInvalidCapacity() {
+    assertThrows(IllegalArgumentException.class,
+      () -> track(new Garage<>(Vehicle.class, ORIGO, 0)));
+
+    assertThrows(IllegalArgumentException.class,
+      () -> track(new Garage<>(Vehicle.class, ORIGO, 128)));
+  }
+
+  @Test
+  void freeSlotsDecreasesWhenLoadedUntilFull() {
+    Garage<Vehicle> g = track(new Garage<>(
+      Vehicle.class,
+      ORIGO,
+      2)
+    );
+
+    Vehicle v1 = track(new Volvo240());
+    Vehicle v2 = track(new Saab95());
+    Vehicle v3 = track(new Scania());
+    v1.mutatePoint(0.1, 0.1);
+    v2.mutatePoint(0.2, 0.2);
+    v3.mutatePoint(0.3, 0.3);
+
+    assertEquals(2, g.getFreeSlots());
+
+    g.load();
+    assertEquals(1, g.getFreeSlots());
+
+    g.load();
+    assertEquals(0, g.getFreeSlots());
+
+    Point2D before = v3.getPoint();
+    g.load();
+    assertEquals(0, g.getFreeSlots());
+    assertEquals(
+      before,
+      v3.getPoint(),
+      "Tredje Vehicle får inte lastas i ett fullt garage."
+    );
+  }
+
+  @Test
+  void loadsClosestVehicleInRange() {
+    Garage<Vehicle> g = track(new Garage<Vehicle>(
+      Vehicle.class,
+      ORIGO,
+      5)
+    );
+
+    Vehicle near = track(new Volvo240());
+    Vehicle far  = track(new Saab95());
+    near.mutatePoint(1.0, 1.0);
+    far.mutatePoint(9.0, 0.0);
+
+    g.load();
+
+    assertEquals(
+      g.getPoint(),
+      near.getPoint(),
+      "Närmaste Vehicle borde laddas."
+    );
+
+    assertNotEquals(
+      g.getPoint(),
+      far.getPoint(),
+      "Bortre Vehicle borde inte lastas."
+    );
+  }
+
+  @Test
+  void doesNotLoadOutOfRange() {
+    Garage<Vehicle> g = track(new Garage<Vehicle>(
+      Vehicle.class,
+      ORIGO,
+      5)
+    );
+
+    Vehicle outOfRange = track(new Volvo240());
+    outOfRange.mutatePoint(100.0, 100.0);
+    Point2D before = outOfRange.getPoint();
+
+    g.load();
+
+    assertEquals(
+      before,
+      outOfRange.getPoint(),
+      "Vehicle utanför radie får inte laddas."
+    );
+
+    assertEquals(
+      5,
+      g.getFreeSlots(),
+      "Fria platser får inte upptas om inget laddas."
+    );
+  }
+
+  @Test
+  void doesNotLoadSameVehicleTwice() {
+    Garage<Vehicle> g = track(new Garage<>(
+      Vehicle.class,
+      ORIGO,
+      2)
+    );
+
+    Vehicle v = track(new Saab95());
+    v.mutatePoint(0.1, 0.1);
+    g.load();
+    assertEquals(g.getPoint(), v.getPoint());
+    assertEquals(1, g.getFreeSlots());
+
+    g.load();
+    assertEquals(
+      1,
+      g.getFreeSlots(),
+      "Kapacitet bör inte förbrukas om samma Vehicle lastas två ggr"
+    );
+  }
+
+  @Test
+  void unloadMovesVehicleToLeftOfGarage() {
+    Garage<Vehicle> g = track(new Garage<>(
+      Vehicle.class,
+      new Point2D.Double(10.0d, 20.0d),
+      2)
+    );
+
+    Vehicle v = track(new Volvo240());
+    v.mutatePoint(10.1, 20.1);
+    g.load();
+    assertEquals(g.getPoint(), v.getPoint(), "Vehicle borde inte lastas.");
+
+    g.unLoad(v);
+    assertEquals(9.0, v.getX(), 1e-12);
+    assertEquals(20.0, v.getY(), 1e-12);
+    assertEquals(
+      2,
+      g.getFreeSlots(),
+      "Unload borde skapa fri plats."
+    );
+  }
+
+  @Test
+  void unloadOfVehicleNotInGarageDoesNothing() {
+    Garage<Vehicle> g = track(new Garage<>(
+      Vehicle.class,
+      ORIGO,
+      2)
+    );
+
+    Vehicle v = track(new Volvo240());
+    v.mutatePoint(3.0, 3.0);
+    Point2D before = v.getPoint();
+
+    g.unLoad(v);
+    assertEquals(
+      before,
+      v.getPoint(),
+      "Vehicle som inte är i Garage får inte byta pos när den lastas av"
+    );
+
+    assertEquals(
+      2,
+      g.getFreeSlots(),
+      "Kapaciteten får inte ändras"
+    );
+  }
+
+  @Test
+  void typeFilterLoadsOnlyVehiclesOfT() {
+    Garage<Saab95> saabGarage = track(new Garage<>(
+      Saab95.class,
+      ORIGO,
+      2)
+    );
+
+    Saab95 saab = track(new Saab95());
+    Volvo240 volvo = track(new Volvo240());
+    saab.mutatePoint(0.2, 0.2);
+    volvo.mutatePoint(0.1, 0.1);
+
+    saabGarage.load();
+
+    assertEquals(
+      saabGarage.getPoint(),
+      saab.getPoint(),
+      "Måste ladda Saab95, inte Volvo, även om Volvo står närmare."
+    );
+
+    assertNotEquals(
+      saabGarage.getPoint(),
+      volvo.getPoint(),
+      "Fel typ får aldrig lastas."
+    );
+  }
+
+  @Test
+  void toStringIsOverridden() throws NoSuchMethodException {
+    track(new Garage<>(
+      Vehicle.class,
+      new Point2D.Double(1.0d, 1.0d),
+      10)
+    );
+
+    for (GameObject gObj : created) {
+      String toString = gObj.toString();
+      assertFalse(toString.isBlank());
+      assertEquals(
+        gObj.getClass(),
+        gObj.getClass()
+          .getMethod("toString")
+          .getDeclaringClass()
+      );
+
+      out.println(gObj.toString());
+    }
+  }
+}
+package lab4;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+public class LoadableVehicleTests {
+  private final List<GameObject> created = new ArrayList<>();
+
+  private <T extends GameObject> T track(T obj) {
+    created.add(obj);
+    return obj;
+  }
+
+  @AfterEach
+  void cleanup() {
+    for (GameObject o : created) {
+      o.destroy();
+    }
+    created.clear();
+  }
+
+  @Test
+  void rampStateChanges() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+
+    carrier.lowerRamp();
+    assertTrue(carrier.canLoad(), "Trailer bör kunna lastas.");
+    assertTrue(carrier.isRampLowered(), "Rampen bör vara nedfälld.");
+
+    carrier.raiseRamp();
+    assertFalse(carrier.canLoad(), "Trailer bör inte kunna lastas.");
+    assertFalse(carrier.isRampLowered(), "Rampen bör vara uppfälld.");
+  }
+
+  @Test
+  void canNotMoveWhileRampLowered() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+
+    carrier.lowerRamp();
+    Point2D before = carrier.getPoint();
+
+    carrier.startEngine();
+    carrier.gas(0.5);
+    carrier.move();
+
+    Point2D after = carrier.getPoint();
+    assertEquals(
+      before,
+      after,
+      "Trailer bör inte byta pos när rampen är nere."
+    );
+  }
+
+  @Test
+  void canNotLowerRampWhileMoving() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+
+    carrier.startEngine();
+    carrier.gas(0.5);
+    carrier.move();
+
+    carrier.lowerRamp();
+    assertFalse(
+      carrier.isRampLowered(),
+      "Rampen bör inte sänkas om bilen rör sig."
+    );
+  }
+
+  @Test
+  void canNotLoadWhileRampIsRaised() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    Saab95 car = track(new Saab95());
+
+    car.mutatePoint(0.1d, 0.1d);
+    Point2D carBefore = car.getPoint();
+
+    carrier.raiseRamp();
+    carrier.load();
+
+    assertEquals(
+      carBefore,
+      car.getPoint(),
+      "Bil får inte lastas på när rampen är uppe."
+    );
+
+    carrier.startEngine();
+    carrier.gas(0.5);
+    carrier.move();
+    assertEquals(
+      carBefore,
+      car.getPoint(),
+      "Bil får inte följa trailer om den inte lastats."
+    );
+  }
+
+  @Test
+  void canNotUnloadWhileRampIsRaised() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    Saab95 car = track(new Saab95());
+
+    car.mutatePoint(0.1d, 0.1d);
+
+    carrier.lowerRamp();
+    carrier.load();
+    assertEquals(
+      carrier.getPoint(),
+      car.getPoint(),
+      "Bil borde lastas."
+    );
+
+    carrier.raiseRamp();
+    Point2D carBefore = car.getPoint();
+    carrier.unLoad();
+
+    assertEquals(
+      carBefore,
+      car.getPoint(),
+      "Bil får inte lastas av när rampen är uppe."
+    );
+  }
+
+  @Test
+  void canNotLoadVehicleOutOfRange() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    Saab95 car = track(new Saab95());
+
+    car.mutatePoint(100.0d, 100.0d);
+    Point2D carBefore = car.getPoint();
+
+    carrier.lowerRamp();
+    carrier.load();
+
+    assertEquals(
+      carBefore,
+      car.getPoint(),
+      "Bil får inte lastas om den är utanför radien."
+    );
+  }
+
+  @Test
+  void canLoadVehicle() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    Saab95 car = track(new Saab95());
+
+    car.mutatePoint(0.1d, 0.1d);
+
+    carrier.lowerRamp();
+    carrier.load();
+
+    assertEquals(
+      carrier.getPoint(),
+      car.getPoint(),
+      "Position på lastad bil borde muteras till samma pos som trailer."
+    );
+
+    carrier.raiseRamp();
+    carrier.startEngine();
+    carrier.gas(1.0);
+    carrier.move();
+
+    assertEquals(
+      carrier.getPoint(),
+      car.getPoint(),
+      "Lastad bil borde ha samma position som trailern."
+    );
+  }
+
+  @Test
+  void canUnloadVehicle() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    Saab95 car = track(new Saab95());
+
+    car.mutatePoint(0.1d, 0.1d);
+    carrier.lowerRamp();
+    carrier.load();
+    assertEquals(
+      carrier.getPoint(),
+      car.getPoint(),
+      "Bil borde inte lastas."
+    );
+
+    Point2D carrierPos = carrier.getPoint();
+    carrier.unLoad();
+
+    assertEquals(carrierPos.getX() - 1.0, car.getX(), 1e-12);
+    assertEquals(carrierPos.getY(), car.getY(), 1e-12);
+  }
+
+  @Test
+  void canNotLoadWhenCarrierIsFull() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    carrier.lowerRamp();
+
+    Saab95[] loaded = new Saab95[6];
+    for (int i = 0; i < 6; i++) {
+      loaded[i] = track(new Saab95());
+      loaded[i].mutatePoint(0.1 + i * 0.01, 0.1 + i * 0.01);
+      carrier.load();
+      assertEquals(
+        carrier.getPoint(),
+        loaded[i].getPoint(),
+        "Bil borde inte lastas."
+      );
+    }
+
+    Saab95 seventh = track(new Saab95());
+    seventh.mutatePoint(0.2, 0.2);
+    Point2D before = seventh.getPoint();
+
+    carrier.load();
+
+    assertEquals(
+      before,
+      seventh.getPoint(),
+      "En sjunde bil får inta lastas på en full trailer"
+    );
+  }
+
+  @Test
+  void canNotUnloadWhenCargoIsEmpty() {
+    VolvoFH16 carrier = track(new VolvoFH16());
+    carrier.lowerRamp();
+
+    Point2D carrierBefore = carrier.getPoint();
+    assertDoesNotThrow(carrier::unLoad);
+
+    assertEquals(carrierBefore, carrier.getPoint());
+  }
+}
+package lab4;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import lab4.interfaces.Tippable;
+
+public class TippableVehiclesTest {
+  private final List<GameObject> created = new ArrayList<>();
+
+  private <T extends GameObject> T track(T obj) {
+    created.add(obj);
+    return obj;
+  }
+
+  @AfterEach
+  void cleanup() {
+    for (GameObject o : created) o.destroy();
+    created.clear();
+  }
+
+  @Test
+  void tipBedChangesAngle() {
+    Tippable tippable = track(new Scania());
+    byte angle = 70;
+    double before = tippable.getTipBedAngle();
+    double after;
+
+    tippable.setTipBedAngle(angle);
+    after = tippable.getTipBedAngle();
+
+    assertTrue(
+      before != after,
+      "Flaket borde byta vinkel."
+    );
+  }
+
+  @Test
+  void outsideTipBedAngleBoundsThrowsException() {
+    Tippable tippable = track(new Scania());
+    byte lowerAngleBound = -1;
+    byte upperAngleBound = 71;
+
+    assertThrows(
+      IllegalArgumentException.class,
+        () -> tippable.setTipBedAngle(lowerAngleBound),
+        "IllegalArgumentException borde kastas."
+    );
+
+    assertThrows(
+      IllegalArgumentException.class,
+        () -> tippable.setTipBedAngle(upperAngleBound),
+        "IllegalArgumentException borde kastas."
+    );
+  }
+
+  @Test
+  void cantMoveWhileTipped() {
+    ConditionallyMovableVehicle scania = track(new Scania());
+    Tippable tipBed = (Tippable) scania;
+    byte lowestTipAngle = 1;
+    byte highestTipAngle = 70;
+    Point2D beforeMoveAttempt;
+    Point2D afterMoveAttempt;
+
+    tipBed.setTipBedAngle(lowestTipAngle);
+    beforeMoveAttempt = scania.getPoint();
+
+    scania.startEngine();
+    scania.gas(0.5d);
+    scania.move();
+    afterMoveAttempt = scania.getPoint();
+
+    assertEquals(
+      beforeMoveAttempt,
+      afterMoveAttempt,
+      "Bilen borde inte röra sig när flaket är tippat till 1 vinkelgrad"
+    );
+
+    scania.stopEngine();
+    tipBed.setTipBedAngle(highestTipAngle);
+
+    beforeMoveAttempt = scania.getPoint();
+
+    scania.startEngine();
+    scania.gas(0.5d);
+    scania.move();
+
+    afterMoveAttempt = scania.getPoint();
+
+    assertEquals(
+      beforeMoveAttempt,
+      afterMoveAttempt,
+      "Bilen borde inte röra sig när flaket är tippat till max vinkelgrad."
+    );
+  }
+
+  @Test
+  void cantTipWhileMoving() {
+    ConditionallyMovableVehicle scania = track(new Scania());
+    Tippable tipBed = (Tippable) scania;
+    byte lowestTipAngle = 1;
+    byte highestTipAngle = 70;
+
+    scania.startEngine();
+    scania.gas(0.5d);
+    scania.move();
+
+    assertThrows(
+      IllegalStateException.class,
+      () -> tipBed.setTipBedAngle(lowestTipAngle),
+      "IllegalStateException bör kastas."
+    );
+
+    assertThrows(
+      IllegalStateException.class,
+      () -> tipBed.setTipBedAngle(highestTipAngle),
+      "IllegalStateException bör kastas."
+    );
+  }
+}
+package lab4;
+
+import lab4.interfaces.TurboChargable;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.awt.Color;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+
+import static java.lang.System.out;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class VehicleTest {
+  private final List<Vehicle> created = new ArrayList<>();
+
+  private <T extends Vehicle> T track(T obj) {
+    created.add(obj);
+    return obj;
+  }
+
+  @AfterEach
+  void cleanup() {
+    for (GameObject o : created) o.destroy();
+    created.clear();
+  }
+
+  @Test
+  void vehicleMovesForward() {
+    double startX;
+    double startY;
+
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+
+    for (Vehicle v : created) {
+      startX = v.getX();
+      startY = v.getY();
+
+      v.startEngine();
+      v.gas(0.3);
+      v.move();
+
+      assertTrue(
+        v.getX() != startX || v.getY() != startY,
+        String.format(
+          "%s flyttade inte när 'move()' anropades.",
+          v.getModelName()
+        )
+      );
+    }
+  }
+
+  @Test
+  void turningChangesDirection() {
+    double dirBeforeTurn;
+    double dirAfterTurn;
+    boolean hasLeftTurn;
+    boolean hasRightTurn;
+
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+
+    for (Vehicle v : created) {
+      dirBeforeTurn = v.getDirection();
+      v.turnLeft();
+      dirAfterTurn = v.getDirection();
+      hasLeftTurn = (dirBeforeTurn != dirAfterTurn);
+
+      dirBeforeTurn = v.getDirection();
+      v.turnRight();
+      dirAfterTurn = v.getDirection();
+      hasRightTurn = (dirBeforeTurn != dirAfterTurn);
+
+      assertTrue(
+        hasLeftTurn && hasRightTurn,
+        String.format(
+          "%s ändrade inte riktning.",
+          v.getModelName()
+        )
+      );
+    }
+  }
+
+  @Test
+  void brakeReducesSpeed() {
+    double speedBeforeBraking;
+    double speedAfterBreaking;
+
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (Vehicle v : created) {
+      v.startEngine();
+      v.gas(0.5);
+      v.move();
+      speedBeforeBraking = v.getCurrentSpeed();
+
+      v.brake(0.5);
+      speedAfterBreaking = v.getCurrentSpeed();
+
+      assertTrue(
+        speedAfterBreaking < speedBeforeBraking,
+        String.format(
+          "Farten sänktes inte när %s bromsade in.",
+          v.getModelName()
+        )
+      );
+    }
+  }
+
+  @Test
+  void gasRejectsOutOfRange() {
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (Vehicle v : created) {
+      assertThrows(IllegalArgumentException.class, () -> v.gas(-0.0001));
+      assertThrows(IllegalArgumentException.class, () -> v.gas( 1.0001));
+    }
+  }
+
+  @Test
+  void brakeRejectsOutOfRange() {
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (Vehicle v : created) {
+      assertThrows(IllegalArgumentException.class, () -> v.brake(-0.0001d));
+      assertThrows(IllegalArgumentException.class, () -> v.brake( 1.0001d));
+    }
+  }
+
+  @Test
+  void turboIncreasesSpeed() {
+    double speedIncrease = 0.3d;
+
+    Vehicle v = track(new Saab95());
+    double speedBefore;
+
+    v.startEngine();
+    v.gas(speedIncrease);
+    speedBefore = v.getCurrentSpeed();
+    v.stopEngine();
+
+    TurboChargable turboV = (TurboChargable) v;
+    turboV.setTurbo(true);
+
+    double speedAfter;
+    v = (Saab95)turboV;
+    v.startEngine();
+    v.gas(speedIncrease);
+    speedAfter = v.getCurrentSpeed();
+    v.stopEngine();
+
+    assertTrue(
+      speedBefore < speedAfter,
+      "Turbon ökade inte farten."
+    );
+  }
+
+  @Test
+  void setCurrentSpeedBoundsWork() {
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (Vehicle v : created) {
+      v.startEngine();
+      for (int i = 0; i < 150; i++) {
+        v.gas(1.0d);
+      }
+
+      assertTrue(
+        v.getCurrentSpeed() == v.getEnginePower(),
+         "'setCurrentSpeed' håller inte övre fartgräns"
+      );
+
+      v.stopEngine();
+
+      for (int i = 0; i < 100; i++) {
+        v.brake(1.0d);
+      }
+
+      assertTrue(
+        v.getCurrentSpeed() == 0.0d,
+      "'setCurrentSpeed' håller inte nedre fartgräns"
+      );
+    }
+  }
+
+  @Test
+  void toStringIsOverridden() throws NoSuchMethodException {
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (GameObject gObj : created) {
+
+      assertFalse(gObj.toString().isBlank());
+      assertEquals(
+        gObj.getClass(),
+        gObj.getClass()
+          .getMethod("toString")
+          .getDeclaringClass()
+      );
+
+      out.println(gObj.toString());
+    }
+  }
+
+  @Test
+  void colorIsMutatedAndAccessed() {
+    Color c;
+
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (Vehicle v : created) {
+      c = new Color(0);
+      v.setColor(c.getRGB());
+
+      assertTrue(
+        v.getColor() == c.getRGB(),
+        "Färg kunnde inte muteras eller hämtas"
+      );
+    }
+  }
+
+  @Test
+  void vehicleHasDoors() {
+    track(new Volvo240());
+    track(new Saab95());
+    track(new VolvoFH16());
+    track(new Scania());
+
+    for (Vehicle v : created) {
+      assertTrue(
+        0 < v.getNrDoors(),
+        "Vehicle " + v.getModelName() + " har inga dörrar."
+      );
+    }
+  }
+}
+package lab4.ui;
+
+import lab4.Vehicle;
+import lab4.Volvo240;
+import lab4.Saab95;
+import lab4.Scania;
+import lab4.Garage;
+
+import javax.imageio.ImageIO;
+import javax.swing.Timer;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public final class CarController {
+
+  private static final int DELAY_MS = 50; // 20 Hz
+  private final Timer timer = new Timer(DELAY_MS, new TimerListener());
+
+  CarView frame;
+
+  private final List<Vehicle> cars = new ArrayList<>();
+
+  private final Volvo240 volvo = new Volvo240();
+  private final Saab95 saab = new Saab95();
+  private final Scania scania = new Scania();
+
+  private final Garage<Volvo240> volvoWorkshop =
+    new Garage<>(Volvo240.class, new Point2D.Double(0, 800 - 340), 10);
+
+  private class TimerListener implements ActionListener {
+    @Override
+    public void actionPerformed(final ActionEvent e) {
+
+      for (int i = 0; i < cars.size(); i++) {
+        Vehicle car = cars.get(i);
+
+        car.move();
+
+        bounceIfNeeded(car);
+
+        if (car instanceof Volvo240) {
+          if (hitsWorkshop(car)) {
+            boolean loaded = volvoWorkshop.load();
+            if (loaded) {
+              frame.drawPanel.removeVehicle(car);
+              cars.remove(i);
+              i--;
+              continue;
+            }
+          }
+        }
+      }
+
+      frame.drawPanel.repaint();
+    }
+  }
+
+  // TODO: Flyttas till domänmodell
+  private boolean hitsWorkshop(final Vehicle car) {
+    double dx = car.getX() - volvoWorkshop.getX();
+    double dy = car.getY() - volvoWorkshop.getY();
+    return (dx*dx + dy*dy) <= 10.0*10.0; // samma som LOAD_RADIUS
+  }
+
+  // TODO: Flyttas till domänmodell
+  private void bounceIfNeeded(final Vehicle car) {
+    BufferedImage img = frame.drawPanel.getImage(car);
+    if (img == null) return;
+
+    int panelW = frame.drawPanel.getWidth();
+    int panelH = frame.drawPanel.getHeight();
+
+    double x = car.getX();
+    double y = car.getY();
+    double w = img.getWidth();
+    double h = img.getHeight();
+
+    boolean hitWall =
+      (x < 0) || (y < 0) ||
+      (x + w > panelW) || (y + h > panelH);
+
+    if (!hitWall) return;
+
+    car.stopEngine();
+
+    // clampa in så bilen inte fastnar "utanför"
+    double cx = clamp(x, 0, Math.max(0, panelW - w));
+    double cy = clamp(y, 0, Math.max(0, panelH - h));
+    car.mutatePoint(cx, cy);
+
+    car.invertDirection();
+    car.startEngine();
+  }
+
+  // TODO: Flyttas till domänmodell
+  private static double clamp(final double v, final double min, final double max) {
+    if (v < min) return min;
+    if (v > max) return max;
+    return v;
+  }
+
+  void gas(int amount) {
+    double gas = amount / 100.0d;
+    for (Vehicle car : cars) car.gas(gas);
+  }
+
+  void brake(final int amount) {
+    double brake = amount / 100.0d;
+    for (Vehicle car : cars) car.brake(brake);
+  }
+
+  void startAll() { for (Vehicle car : cars) car.startEngine(); }
+
+  void stopAll() { for (Vehicle car : cars) car.stopEngine(); }
+
+  void saabTurboOn() { saab.setTurbo(true); }
+
+  void saabTurboOff() { saab.setTurbo(false); }
+
+  void scaniaLiftBed() { scania.setTipBedAngle((byte) 1); }
+
+  void scaniaLowerBed() { scania.setTipBedAngle((byte) 0); }
+
+  public static void main(String[] args) {
+    CarController cc = new CarController();
+
+    cc.volvo.mutatePoint(0, 0);
+    cc.saab.mutatePoint(0, 100);
+    cc.scania.mutatePoint(0, 200);
+
+    cc.cars.add(cc.volvo);
+    cc.cars.add(cc.saab);
+    cc.cars.add(cc.scania);
+
+    cc.frame = new CarView("CarSim 1.0", cc);
+
+    try {
+      BufferedImage volvoImg = ImageIO.read(
+        DrawPanel.class.getResourceAsStream("/pics/Volvo240.jpg")
+      );
+      BufferedImage saabImg = ImageIO.read(
+        DrawPanel.class.getResourceAsStream("/pics/Saab95.jpg")
+      );
+      BufferedImage scaniaImg = ImageIO.read(
+        DrawPanel.class.getResourceAsStream("/pics/Scania.jpg")
+      );
+
+      cc.frame.drawPanel.addVehicle(cc.volvo, volvoImg);
+      cc.frame.drawPanel.addVehicle(cc.saab, saabImg);
+      cc.frame.drawPanel.addVehicle(cc.scania, scaniaImg);
+
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
+    cc.timer.start();
+  }
+}
+package lab4.ui;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.BorderLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import static java.awt.Color.BLACK;
+import static java.awt.Color.BLUE;
+import static java.awt.Color.CYAN;
+import static java.awt.Color.RED;
+import static java.awt.Color.GREEN;
+
+public final class CarView extends JFrame {
+
+  private static final Dimension FRAME_DIM = new Dimension(800, 800);
+  private static final Dimension D_PANEL_DIM = new Dimension((int) FRAME_DIM.getWidth(), (int) FRAME_DIM.getHeight() - 240);
+  private static final Dimension RIGHT_C_PANEL_DIM = new Dimension((int) (FRAME_DIM.getWidth() / 2) + 4, 200);
+  private static final Dimension LEFT_C_PANEL_DIM = new Dimension((int) (FRAME_DIM.getWidth() / 5) - 15, 200);
+
+  final CarController cc;
+
+  final DrawPanel drawPanel = new DrawPanel(D_PANEL_DIM);
+
+  final JPanel controlPanel = new JPanel();
+
+  final JLabel gasLabel = new JLabel("Amount of gas");
+  final JPanel gasPanel = new JPanel();
+
+  final JButton gasButton = new JButton("Gas");
+  final JButton brakeButton = new JButton("Brake");
+  final JButton turboOnButton = new JButton("Saab Turbo on");
+  final JButton turboOffButton = new JButton("Saab Turbo off");
+  final JButton liftBedButton = new JButton("Scania Lift Bed");
+  final JButton lowerBedButton = new JButton("Lower Lift Bed");
+  final JButton startButton = new JButton("Start all cars");
+  final JButton stopButton = new JButton("Stop all cars");
+  final JSpinner gasSpinner = new JSpinner(new SpinnerNumberModel(
+    /* Startvärde */ 0,
+    /* Minsta värde */0,
+    /* Högsta värde */100,
+    /* Steglängd */ 1
+  ));
+
+  int gasAmount = 0;
+
+  public CarView(final String framename, final CarController cc) {
+    this.cc = cc;
+    initComponents(framename);
+  }
+
+  private void initComponents(final String title) {
+
+    setTitle(title);
+    setPreferredSize(FRAME_DIM);
+    setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+
+    add(drawPanel);
+    gasSpinner.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        gasAmount = (int) ((JSpinner) e.getSource()).getValue();
+      }
+    });
+
+    gasPanel.setLayout(new GridLayout(2, 1));
+    gasPanel.add(gasLabel, BorderLayout.PAGE_START);
+    gasPanel.add(gasSpinner, BorderLayout.PAGE_END);
+    add(gasPanel);
+
+    controlPanel.setLayout(new GridLayout(2, 4));
+    controlPanel.add(gasButton, 0);
+    controlPanel.add(turboOnButton, 1);
+    controlPanel.add(liftBedButton, 2);
+    controlPanel.add(brakeButton, 3);
+    controlPanel.add(turboOffButton, 4);
+    controlPanel.add(lowerBedButton, 5);
+    controlPanel.setPreferredSize(RIGHT_C_PANEL_DIM);
+    controlPanel.setBackground(CYAN);
+    add(controlPanel);
+
+    startButton.setBackground(BLUE);
+    startButton.setForeground(GREEN);
+    startButton.setPreferredSize(LEFT_C_PANEL_DIM);
+    add(startButton);
+
+    stopButton.setBackground(RED);
+    stopButton.setForeground(BLACK);
+    stopButton.setPreferredSize(LEFT_C_PANEL_DIM);
+    add(stopButton);
+
+    gasButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.gas(gasAmount); }
+    });
+
+    brakeButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.brake(gasAmount); }
+    });
+
+    startButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.startAll(); }
+    });
+
+    stopButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.stopAll(); }
+    });
+
+    turboOnButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.saabTurboOn(); }
+    });
+
+    turboOffButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.saabTurboOff(); }
+    });
+
+    liftBedButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.scaniaLiftBed(); }
+    });
+
+    lowerBedButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(final ActionEvent e) { cc.scaniaLowerBed(); }
+    });
+
+    pack();
+
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    setLocation(
+      dim.width / 2 - getSize().width / 2,
+      dim.height / 2 - getSize().height / 2
+    );
+
+    setVisible(true);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  }
+}
+package lab4.ui;
+
+import lab4.Vehicle;
+
+import javax.imageio.ImageIO;
+import java.io.IOException;
+
+import javax.swing.JPanel;
+
+import java.awt.Point;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static java.awt.Color.GREEN;
+
+public final class DrawPanel extends JPanel {
+
+  private final Map<Vehicle, BufferedImage> sprites = new LinkedHashMap<>();
+
+  private BufferedImage workshopImage;
+  private final Point workshopPoint = new Point(0, 800 - 340);
+
+  public DrawPanel(final Dimension dim) {
+    setDoubleBuffered(true);
+    setPreferredSize(dim);
+    setBackground(GREEN);
+
+    try {
+      workshopImage = ImageIO.read(
+        DrawPanel.class.getResourceAsStream("/pics/VolvoBrand.jpg")
+      );
+    } catch (IOException ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  public void addVehicle(final Vehicle v, final BufferedImage img) {
+    sprites.put(v, img);
+  }
+
+  public void removeVehicle(final Vehicle v) {
+    sprites.remove(v);
+  }
+
+  public BufferedImage getImage(final Vehicle v) {
+    return sprites.get(v);
+  }
+
+  public Rectangle2D getWorkshopRect() {
+    if (workshopImage == null) return new Rectangle2D.Double(workshopPoint.x, workshopPoint.y, 0, 0);
+    return new Rectangle2D.Double(workshopPoint.x, workshopPoint.y, workshopImage.getWidth(), workshopImage.getHeight());
+  }
+
+  @Override
+  protected void paintComponent(final Graphics g) {
+    super.paintComponent(g);
+
+    if (workshopImage != null) {
+      g.drawImage(workshopImage, workshopPoint.x, workshopPoint.y, null);
+    }
+
+    for (Map.Entry<Vehicle, BufferedImage> e : sprites.entrySet()) {
+      Vehicle v = e.getKey();
+      BufferedImage img = e.getValue();
+      if (img == null) continue;
+
+      int x = (int) Math.round(v.getX());
+      int y = (int) Math.round(v.getY());
+      g.drawImage(img, x, y, null);
+    }
+  }
+}
