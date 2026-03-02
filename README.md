@@ -236,4 +236,4 @@ LAB3
 
 ## Dokumentation av planeringsstadiet.
 
-![Sketch of program structure](.github\workflows\img\Sketch.png)
+![Sketch of program structure](./.github\workflows\img\Sketch.png)
