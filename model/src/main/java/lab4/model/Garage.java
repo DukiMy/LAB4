@@ -1,18 +1,15 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
+ * File: Garage.java
  *
- *  Klassen är en konkret representation av ett Garage.
- *  Objekt av denna klass har...
- *    - Position
- *    - Datastruktur för hållande av bilar.
- *    - Ett maxantal bilar
- *  Objekt av denna klass skall kunna...
- *    - Lasta och lossa bilar
- *    -
+ * API: 
+ *  Garage(final Class<T> type, final Point2D point, final int maxCapacity) 
+ *  getFreeSlots()
+ *  load()
+ *  unLoad()
+ *  printLoad()
  */
 
-package lab4;
+package lab4.model;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;

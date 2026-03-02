@@ -1,4 +1,4 @@
-<!-- 
+<!--
   root/pom.xml
 -->
 
@@ -17,7 +17,7 @@
   <description>Multi-modul projekt för kursen OOP design på GU/Chalmers</description>
 
   <modules>
-    <module>model</module>
+    <!-- <module>model</module> -->
     <module>ui</module>
     <module>app</module>
   </modules>
@@ -39,14 +39,21 @@
     <dependencies>
 
       <!-- Reactor modules -->
-      <dependency>
+      <!-- <dependency>
         <groupId>se.gu.lab</groupId>
         <artifactId>model</artifactId>
         <version>${project.version}</version>
-      </dependency>
+      </dependency> -->
+
       <dependency>
         <groupId>se.gu.lab</groupId>
         <artifactId>ui</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>se.gu.lab</groupId>
+        <artifactId>app</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -91,20 +98,6 @@
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.version}</version>
-          <executions>
-            <execution>
-              <goals>
-                <goal>prepare-agent</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>report</id>
-              <phase>verify</phase>
-              <goals>
-                <goal>report</goal>
-              </goals>
-            </execution>
-          </executions>
         </plugin>
 
         <plugin>

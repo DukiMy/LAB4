@@ -1,4 +1,4 @@
-package lab4.interfaces;
+package lab4.model.interfaces;
 
 public interface Car extends Movable {
 

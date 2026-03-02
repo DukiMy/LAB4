@@ -1,12 +1,11 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
- */
+ * File: VolvoFH16.java
+*/
 
-package lab4;
+package lab4.model;
 
-import lab4.interfaces.Car;
-import lab4.interfaces.RampOperated;
+import lab4.model.interfaces.Car;
+import lab4.model.interfaces.RampOperated;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

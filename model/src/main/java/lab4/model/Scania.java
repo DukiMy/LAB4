@@ -1,11 +1,15 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
+ * File: Scania.java
+ *
+ * API:
+ *  setTipBedAngle(byte)
+ *  byte getTipBedAngle()
+ *  canMove()
  */
 
-package lab4;
+package lab4.model;
 
-import lab4.interfaces.Tippable;
+import lab4.model.interfaces.Tippable;
 
 import java.awt.geom.Point2D;
 import static java.awt.Color.BLUE;

@@ -1,6 +1,7 @@
 package lab4;
 
-import lab4.interfaces.TurboChargable;
+import lab4.model.interfaces.*;
+import lab4.model.*;
 
 import java.util.ArrayList;
 import java.util.List;

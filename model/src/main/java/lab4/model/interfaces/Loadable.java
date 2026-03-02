@@ -5,7 +5,7 @@
  *  Gränssnittet avgränsar beteenden hos objekt som kan lasta in andra objekt.
  */
 
-package lab4.interfaces;
+package lab4.model.interfaces;
 
 public interface Loadable {
   void load();

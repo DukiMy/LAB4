@@ -11,7 +11,8 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import lab4.interfaces.Tippable;
+import lab4.model.interfaces.*;
+import lab4.model.*;
 
 public class TippableVehiclesTest {
   private final List<GameObject> created = new ArrayList<>();

@@ -8,6 +8,13 @@ import java.awt.geom.Point2D;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import lab4.model.GameObject;
+import lab4.model.Garage;
+import lab4.model.Saab95;
+import lab4.model.Scania;
+import lab4.model.Vehicle;
+import lab4.model.Volvo240;
+
 import static java.lang.System.out;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

@@ -1,8 +1,11 @@
 # oopd-gu-chalmers Lab 3
 Lab assignment 3 in the course Object-oriented Programming and Design, GU/Chalmers
 
-## Instruktioner för körning. 
-```mvn -pl app exec:java```
+## Instruktioner för kompilering.
+```mvn clean verify```
+
+## Instruktioner för körning.
+```mvn -pl app -am package -Prun```
 
 ## Testresultat med coverage
 [https://dukimy.github.io/LAB3/](https://dukimy.github.io/LAB3)

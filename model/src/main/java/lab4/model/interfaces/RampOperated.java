@@ -6,7 +6,7 @@
  *  rampar.
  */
 
-package lab4.interfaces;
+package lab4.model.interfaces;
 
 public interface RampOperated extends Loadable {
   void lowerRamp();

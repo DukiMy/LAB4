@@ -1,9 +1,16 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
+ * File: GameObject.java
+ *
+ * API:
+ *  getX()
+ *  getY()
+ *  getPoint()
+ *  mutatePoint(final double x, final double y)
+ *  T getClosestInRange(Class<T> type, double loadRadius, Predicate<? super T> allowed)
+ *  destroy()
  */
 
-package lab4;
+package lab4.model;
 
 import java.util.Set;
 import java.util.HashSet;

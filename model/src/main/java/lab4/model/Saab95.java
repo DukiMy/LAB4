@@ -1,12 +1,15 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
- */
+ * File: Saab95.java
+ *
+ * API:
+ *  setTurbo(boolean state)
+ *
+*/
 
-package lab4;
+package lab4.model;
 
-import lab4.interfaces.Car;
-import lab4.interfaces.TurboChargable;
+import lab4.model.interfaces.Car;
+import lab4.model.interfaces.TurboChargable;
 
 import java.awt.geom.Point2D;
 import static java.awt.Color.RED;
@@ -17,7 +20,7 @@ import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
 
 public final class Saab95 extends Vehicle implements Car, TurboChargable{
 
-	private boolean turboOn;
+	private boolean turboState;
 
 	public Saab95() {
 		super(
@@ -28,13 +31,13 @@ public final class Saab95 extends Vehicle implements Car, TurboChargable{
       /* Point           */ new Point2D.Double(0.0d, 0.0d)
     );
 
-    turboOn = false;
+    turboState = false;
 	}
 
-	public void setTurbo(final boolean state) { turboOn = state; }
+	public void setTurbo(final boolean state) { turboState = state; }
 
 	private double speedFactor() {
-		return getEnginePower() * 0.01d * (turboOn ? 1.3d : 1.0d);
+		return getEnginePower() * 0.01d * (turboState ? 1.3d : 1.0d);
 	}
 
   @Override

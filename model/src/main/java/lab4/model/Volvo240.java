@@ -1,13 +1,12 @@
 /*
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
+ * File: Volvo240.java
  */
 
-package lab4;
+package lab4.model;
 
 import static java.awt.Color.BLACK;
 
-import lab4.interfaces.Car;
+import lab4.model.interfaces.Car;
 
 import java.awt.geom.Point2D;
 

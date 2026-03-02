@@ -1,9 +1,8 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
+ * File: ConditionallyMovableVehicle.java
  */
 
-package lab4;
+package lab4.model;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
@@ -11,7 +10,7 @@ import java.awt.geom.Point2D;
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.finite;
 
-abstract class ConditionallyMovableVehicle extends Vehicle {
+public abstract class ConditionallyMovableVehicle extends Vehicle {
 
   public ConditionallyMovableVehicle (
     final int nrDoors,

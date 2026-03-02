@@ -1,5 +1,5 @@
-<!-- 
-  model/pom.xml 
+<!--
+  model/pom.xml
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -21,6 +21,7 @@
   <name>LAB4-Model</name>
 
   <dependencies>
+
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -31,6 +32,7 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <build>
@@ -43,7 +45,25 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
+          <executions>
+
+            <execution>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+            </execution>
+
+            <execution>
+              <id>report</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+
+          </executions>
       </plugin>
+
     </plugins>
   </build>
 

@@ -1,11 +1,23 @@
 /**
- *  Utfärdat av Durim Miziraj
- *  Kontakt: gusmizdu@student.gu.se
+ * File: Vehile.java
+ *
+ *  getDirection()
+ *  getNrDoors()
+ *  getEnginePower()
+ *  getCurrentSpeed()
+ *  getColor()
+ *  setColor(int)
+ *  getModelName()
+ *  startEngine()
+ *  stopEngine()
+ *  turnLeft()
+ *  turnRight()
+ *
  */
 
-package lab4;
+package lab4.model;
 
-import lab4.interfaces.Movable;
+import lab4.model.interfaces.Movable;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
