@@ -18,7 +18,6 @@ public final class Scania extends ConditionallyMovableVehicle implements RampOpe
     super(2, 200.0d, BLUE, "Scania", new Point2D.Double(0.0d, 0.0d));
   }
 
-  // Tippable
   @Override
   public void setTipBedAngle(final byte angle) {
     isTrue(0 <= angle && angle <= 70);
@@ -37,7 +36,6 @@ public final class Scania extends ConditionallyMovableVehicle implements RampOpe
   @Override
   protected double speedFactor() { return getEnginePower() * 0.01d; }
 
-  // RampOperated (and therefore Loadable)
   @Override
   public void lowerRamp() {
     if (getCurrentSpeed() != 0.0d) return;
@@ -55,7 +53,7 @@ public final class Scania extends ConditionallyMovableVehicle implements RampOpe
     return getCurrentSpeed() == 0.0d && rampLowered;
   }
 
-  @Override public void load() { /* World-owned */ }
-  @Override public void unLoad() { /* World-owned */ }
-  @Override public void printLoad() { /* none */ }
+  @Override public void load() {}
+  @Override public void unLoad() {}
+  @Override public void printLoad() {}
 }

@@ -17,8 +17,6 @@ public final class VolvoFH16 extends ConditionallyMovableVehicle implements Load
 
   private final Deque<Vehicle> cargo = new ArrayDeque<>();
 
-  // VolvoFH16 still needs “canLoad”; you already have it in Loadable
-  // We keep a ramp-like flag but it is internal to VolvoFH16.
   private boolean loadingEnabled;
 
   public VolvoFH16() {
@@ -26,38 +24,27 @@ public final class VolvoFH16 extends ConditionallyMovableVehicle implements Load
     loadingEnabled = false;
   }
 
-  // --- Loadable ---
   @Override
   public boolean canLoad() {
     return getCurrentSpeed() == 0.0d && loadingEnabled;
   }
 
-  /** Domain toggle used by controller (or later: a dedicated action/button). */
   public void setLoadingEnabled(boolean enabled) {
     if (getCurrentSpeed() != 0.0d) return;
     this.loadingEnabled = enabled;
   }
 
   @Override
-  public void load() {
-    // Intentionally empty: loading is a WORLD responsibility.
-    // Controller calls world.loadNearestOnto(this, radius).
-  }
+  public void load() {}
 
   @Override
-  public void unLoad() {
-    // Intentionally empty: unloading is a WORLD responsibility.
-    // Controller calls world.unloadFrom(this).
-  }
+  public void unLoad() {}
 
   @Override
   public void printLoad() {
-    // you can keep console printing if required by course, but it’s UI-ish.
-    // leaving it simple:
     System.out.println(cargo);
   }
 
-  // --- carrier internal primitives used by World ---
   public boolean hasSpace() { return cargo.size() < MAX_CAPACITY; }
 
   public boolean accepts(Vehicle v) {

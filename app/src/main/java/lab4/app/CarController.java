@@ -24,7 +24,7 @@ public final class CarController {
 
   public CarController(World world) {
     this.world = world;
-    this.timer = new Timer(40, e -> world.step()); // ~25 FPS
+    this.timer = new Timer(40, e -> world.step());
 
     world.addGarage(garage);
 

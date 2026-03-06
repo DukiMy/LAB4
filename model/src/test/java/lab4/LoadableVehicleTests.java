@@ -48,11 +48,9 @@ public class LoadableVehicleTests {
     scania.gas(0.5);
     scania.move();
 
-    // Lowering ramp while moving should do nothing
     scania.lowerRamp();
     assertFalse(scania.isRampLowered());
 
-    // Tip while moving should throw by your Scania implementation
     assertThrows(IllegalStateException.class, () -> scania.setTipBedAngle((byte) 1));
   }
 
