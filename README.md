@@ -1,18 +1,18 @@
-# oopd-gu-chalmers Lab 3
-Lab assignment 3 in the course Object-oriented Programming and Design, GU/Chalmers
+# oopd-gu-chalmers Lab 4
+Lab assignment 4 in the course Object-oriented Programming and Design, GU/Chalmers
 
-## Instruktioner för kompilering.
+## Instruktioner för omkompilering.
 ```mvn clean verify```
 
 ## Instruktioner för körning.
 ```mvn -pl app -am package -Prun```
 
 ## Testresultat med coverage
-[https://dukimy.github.io/LAB3/](https://dukimy.github.io/LAB3)
+[https://dukimy.github.io/LAB4/](https://dukimy.github.io/LAB4)
 
 ## Projekt struktur.
 ```
-LAB3
+LAB4
 │   .classpath
 │   .gitignore
 │   .gitmodules
@@ -22,6 +22,9 @@ LAB3
 │   session.vim
 │
 ├───.github
+│   ├───img
+│   │       Sketch.png
+│   │
 │   └───workflows
 │           yacoco-pages.yml
 │
@@ -34,8 +37,51 @@ LAB3
 ├───.vscode
 │       settings.json
 │
-├───img
-│       Sketch.png
+├───app
+│   │   pom.xml
+│   │
+│   ├───src
+│   │   └───main
+│   │       └───java
+│   │           └───lab4
+│   │               └───app
+│   │                       App.java
+│   │                       CarController.java
+│   │                       WorldSnapshotPublisher.java
+│   │
+│   └───target
+│       │   app-1.0-SNAPSHOT.jar
+│       │
+│       ├───classes
+│       │   └───lab4
+│       │       └───app
+│       │               App.class
+│       │               CarController$1.class
+│       │               CarController$10.class
+│       │               CarController$11.class
+│       │               CarController$12.class
+│       │               CarController$2.class
+│       │               CarController$3.class
+│       │               CarController$4.class
+│       │               CarController$5.class
+│       │               CarController$6.class
+│       │               CarController$7.class
+│       │               CarController$8.class
+│       │               CarController$9.class
+│       │               CarController.class
+│       │               WorldSnapshotPublisher.class
+│       │
+│       ├───generated-sources
+│       │   └───annotations
+│       ├───maven-archiver
+│       │       pom.properties
+│       │
+│       └───maven-status
+│           └───maven-compiler-plugin
+│               └───compile
+│                   └───default-compile
+│                           createdFiles.lst
+│                           inputFiles.lst
 │
 ├───model
 │   │   pom.xml
@@ -43,28 +89,34 @@ LAB3
 │   ├───src
 │   │   ├───main
 │   │   │   └───java
-│   │   │       └───lab3
-│   │   │           │   ConditionallyMovableVehicle.java
-│   │   │           │   GameObject.java
-│   │   │           │   Garage.java
-│   │   │           │   README.md
-│   │   │           │   Saab95.java
-│   │   │           │   Scania.java
-│   │   │           │   Vehicle.java
-│   │   │           │   Volvo240.java
-│   │   │           │   VolvoFH16.java
-│   │   │           │
-│   │   │           └───interfaces
-│   │   │                   Car.java
-│   │   │                   Loadable.java
-│   │   │                   Movable.java
-│   │   │                   RampOperated.java
-│   │   │                   Tippable.java
-│   │   │                   TurboChargable.java
+│   │   │       └───lab4
+│   │   │           └───model
+│   │   │               │   ConditionallyMovableVehicle.java
+│   │   │               │   GameObject.java
+│   │   │               │   Garage.java
+│   │   │               │   RandomVehicleFactory.java
+│   │   │               │   README.md
+│   │   │               │   Saab95.java
+│   │   │               │   Scania.java
+│   │   │               │   Vehicle.java
+│   │   │               │   Volvo240.java
+│   │   │               │   VolvoFH16.java
+│   │   │               │   World.java
+│   │   │               │   WorldListener.java
+│   │   │               │
+│   │   │               └───interfaces
+│   │   │                       Car.java
+│   │   │                       Loadable.java
+│   │   │                       Movable.java
+│   │   │                       RampOperated.java
+│   │   │                       Tippable.java
+│   │   │                       TurboChargable.java
+│   │   │                       VehicleFactory.java
+│   │   │                       WorldView.java
 │   │   │
 │   │   └───test
 │   │       └───java
-│   │           └───lab3
+│   │           └───lab4
 │   │                   GarageTests.java
 │   │                   LoadableVehicleTests.java
 │   │                   TippableVehiclesTest.java
@@ -75,24 +127,29 @@ LAB3
 │       │   model-1.0-SNAPSHOT.jar
 │       │
 │       ├───classes
-│       │   └───lab3
-│       │       │   ConditionallyMovableVehicle.class
-│       │       │   GameObject.class
-│       │       │   Garage.class
-│       │       │   README.md
-│       │       │   Saab95.class
-│       │       │   Scania.class
-│       │       │   Vehicle.class
-│       │       │   Volvo240.class
-│       │       │   VolvoFH16.class
-│       │       │
-│       │       └───interfaces
-│       │               Car.class
-│       │               Loadable.class
-│       │               Movable.class
-│       │               RampOperated.class
-│       │               Tippable.class
-│       │               TurboChargable.class
+│       │   └───lab4
+│       │       └───model
+│       │           │   ConditionallyMovableVehicle.class
+│       │           │   GameObject.class
+│       │           │   Garage.class
+│       │           │   RandomVehicleFactory.class
+│       │           │   Saab95.class
+│       │           │   Scania.class
+│       │           │   Vehicle.class
+│       │           │   Volvo240.class
+│       │           │   VolvoFH16.class
+│       │           │   World.class
+│       │           │   WorldListener.class
+│       │           │
+│       │           └───interfaces
+│       │                   Car.class
+│       │                   Loadable.class
+│       │                   Movable.class
+│       │                   RampOperated.class
+│       │                   Tippable.class
+│       │                   TurboChargable.class
+│       │                   VehicleFactory.class
+│       │                   WorldView.class
 │       │
 │       ├───generated-sources
 │       │   └───annotations
@@ -113,67 +170,18 @@ LAB3
 │       │                   createdFiles.lst
 │       │                   inputFiles.lst
 │       │
-│       ├───site
-│       │   └───jacoco
-│       │       │   index.html
-│       │       │   jacoco-sessions.html
-│       │       │   jacoco.csv
-│       │       │   jacoco.xml
-│       │       │
-│       │       ├───jacoco-resources
-│       │       │       branchfc.gif
-│       │       │       branchnc.gif
-│       │       │       branchpc.gif
-│       │       │       bundle.gif
-│       │       │       class.gif
-│       │       │       down.gif
-│       │       │       greenbar.gif
-│       │       │       group.gif
-│       │       │       method.gif
-│       │       │       package.gif
-│       │       │       prettify.css
-│       │       │       prettify.js
-│       │       │       redbar.gif
-│       │       │       report.css
-│       │       │       report.gif
-│       │       │       session.gif
-│       │       │       sort.gif
-│       │       │       sort.js
-│       │       │       source.gif
-│       │       │       up.gif
-│       │       │
-│       │       └───lab3
-│       │               ConditionallyMovableVehicle.html
-│       │               ConditionallyMovableVehicle.java.html
-│       │               GameObject.html
-│       │               GameObject.java.html
-│       │               Garage.html
-│       │               Garage.java.html
-│       │               index.html
-│       │               index.source.html
-│       │               Saab95.html
-│       │               Saab95.java.html
-│       │               Scania.html
-│       │               Scania.java.html
-│       │               Vehicle.html
-│       │               Vehicle.java.html
-│       │               Volvo240.html
-│       │               Volvo240.java.html
-│       │               VolvoFH16.html
-│       │               VolvoFH16.java.html
-│       │
 │       ├───surefire-reports
-│       │       lab3.GarageTests.txt
-│       │       lab3.LoadableVehicleTests.txt
-│       │       lab3.TippableVehiclesTest.txt
-│       │       lab3.VehicleTest.txt
-│       │       TEST-lab3.GarageTests.xml
-│       │       TEST-lab3.LoadableVehicleTests.xml
-│       │       TEST-lab3.TippableVehiclesTest.xml
-│       │       TEST-lab3.VehicleTest.xml
+│       │       lab4.GarageTests.txt
+│       │       lab4.LoadableVehicleTests.txt
+│       │       lab4.TippableVehiclesTest.txt
+│       │       lab4.VehicleTest.txt
+│       │       TEST-lab4.GarageTests.xml
+│       │       TEST-lab4.LoadableVehicleTests.xml
+│       │       TEST-lab4.TippableVehiclesTest.xml
+│       │       TEST-lab4.VehicleTest.xml
 │       │
 │       └───test-classes
-│           └───lab3
+│           └───lab4
 │                   GarageTests.class
 │                   LoadableVehicleTests.class
 │                   TippableVehiclesTest.class
@@ -187,11 +195,20 @@ LAB3
     ├───src
     │   └───main
     │       ├───java
-    │       │   └───lab3
+    │       │   └───lab4
     │       │       └───ui
-    │       │               CarController.java
-    │       │               CarView.java
-    │       │               DrawPanel.java
+    │       │           │   Canvas.java
+    │       │           │   Frame.java
+    │       │           │   LogPanel.java
+    │       │           │   RootContainer.java
+    │       │           │   Toolbar.java
+    │       │           │
+    │       │           └───render
+    │       │                   GarageSnapshot.java
+    │       │                   SnapshotListener.java
+    │       │                   SpriteStore.java
+    │       │                   VehicleSnapshot.java
+    │       │                   WorldSnapshot.java
     │       │
     │       └───resources
     │           └───pics
@@ -199,39 +216,44 @@ LAB3
     │                   Scania.jpg
     │                   Volvo240.jpg
     │                   VolvoBrand.jpg
+    │                   VolvoFH16.png
     │
     └───target
         │   ui-1.0-SNAPSHOT.jar
         │
         ├───classes
-        │   ├───lab3
+        │   ├───lab4
         │   │   └───ui
-        │   │           CarController$TimerListener.class
-        │   │           CarController.class
-        │   │           CarView$1.class
-        │   │           CarView$2.class
-        │   │           CarView.class
-        │   │           DrawPanel.class
+        │   │       │   Canvas.class
+        │   │       │   Frame.class
+        │   │       │   RootContainer.class
+        │   │       │   Toolbar.class
+        │   │       │
+        │   │       └───render
+        │   │               GarageSnapshot.class
+        │   │               SnapshotListener.class
+        │   │               SpriteStore.class
+        │   │               VehicleSnapshot.class
+        │   │               WorldSnapshot.class
         │   │
         │   └───pics
         │           Saab95.jpg
         │           Scania.jpg
         │           Volvo240.jpg
         │           VolvoBrand.jpg
+        │           VolvoFH16.png
         │
         ├───generated-sources
         │   └───annotations
         ├───maven-archiver
         │       pom.properties
         │
-        ├───maven-status
-        │   └───maven-compiler-plugin
-        │       └───compile
-        │           └───default-compile
-        │                   createdFiles.lst
-        │                   inputFiles.lst
-        │
-        └───test-classes
+        └───maven-status
+            └───maven-compiler-plugin
+                └───compile
+                    └───default-compile
+                            createdFiles.lst
+                            inputFiles.lst
 ```
 
 ## Dokumentation av planeringsstadiet.
