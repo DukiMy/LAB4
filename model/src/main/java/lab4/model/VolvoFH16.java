@@ -1,122 +1,86 @@
-/**
- * File: VolvoFH16.java
-*/
-
 package lab4.model;
 
 import lab4.model.interfaces.Car;
-import lab4.model.interfaces.RampOperated;
+import lab4.model.interfaces.Loadable;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import static java.lang.System.out;
-
-import java.awt.geom.Point2D;
 import static java.awt.Color.YELLOW;
+import static java.util.Objects.requireNonNull;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
+public final class VolvoFH16 extends ConditionallyMovableVehicle implements Loadable {
 
-public final class VolvoFH16 extends ConditionallyMovableVehicle implements RampOperated {
+  public static final double DEFAULT_LOAD_RADIUS = 5.0d;
+  private static final int MAX_CAPACITY = 6;
 
-  private static final double LOAD_RADIUS = 5.0d;
-  private static final byte MAX_CAPACITY = 6;
   private final Deque<Vehicle> cargo = new ArrayDeque<>();
-  private boolean isRampLowered;
+
+  // VolvoFH16 still needs “canLoad”; you already have it in Loadable
+  // We keep a ramp-like flag but it is internal to VolvoFH16.
+  private boolean loadingEnabled;
 
   public VolvoFH16() {
-    super(
-      /* Number of doors */ 2,
-      /* Engine power    */ 200.0d,
-      /* Vehicle color   */ YELLOW,
-      /* Vehicle model   */ "VolvoFH16",
-      /* X position      */ new Point2D.Double(0.0d, 0.0d)
-    );
-
-    raiseRamp();
+    super(2, 200.0d, YELLOW, "VolvoFH16", new Point2D.Double(0.0d, 0.0d));
+    loadingEnabled = false;
   }
 
-  public void lowerRamp() {
-    if (getCurrentSpeed() > 0) return;
-    isRampLowered = true;
-  }
-
-  public void raiseRamp() {
-    isRampLowered = false;
-  }
-
-  public boolean isRampLowered() {
-    return isRampLowered;
-  }
-
+  // --- Loadable ---
+  @Override
   public boolean canLoad() {
-    return (getCurrentSpeed() == 0 && isRampLowered);
+    return getCurrentSpeed() == 0.0d && loadingEnabled;
   }
 
+  /** Domain toggle used by controller (or later: a dedicated action/button). */
+  public void setLoadingEnabled(boolean enabled) {
+    if (getCurrentSpeed() != 0.0d) return;
+    this.loadingEnabled = enabled;
+  }
+
+  @Override
   public void load() {
-    Vehicle v;
+    // Intentionally empty: loading is a WORLD responsibility.
+    // Controller calls world.loadNearestOnto(this, radius).
+  }
 
-    if (!canLoad()) {
-      out.println("Can not load, ramp is not lowered!");
-      return;
-    }
+  @Override
+  public void unLoad() {
+    // Intentionally empty: unloading is a WORLD responsibility.
+    // Controller calls world.unloadFrom(this).
+  }
 
-    if (cargo.size() >= MAX_CAPACITY) {
-      out.println("Can not load, " + getModelName() +" is full!");
-      return;
-    }
+  @Override
+  public void printLoad() {
+    // you can keep console printing if required by course, but it’s UI-ish.
+    // leaving it simple:
+    System.out.println(cargo);
+  }
 
-    v = getClosestInRange(
-      Vehicle.class,
-      LOAD_RADIUS,
-      car -> (car instanceof Car) && !cargo.contains(car)
-    );
+  // --- carrier internal primitives used by World ---
+  public boolean hasSpace() { return cargo.size() < MAX_CAPACITY; }
 
-    if (v == null) return;
+  public boolean accepts(Vehicle v) {
+    return (v instanceof Car) && !cargo.contains(v);
+  }
 
+  public void accept(Vehicle v) {
+    requireNonNull(v);
     cargo.push(v);
     v.mutatePoint(getX(), getY());
   }
 
-  public void unLoad() {
-    if (!canLoad()) {
-      out.println("Can not unload, ramp is not lowered!");
-      return;
-    }
-
-    if (cargo.isEmpty()) {
-      out.println("There is nothing to unload!");
-      return;
-    }
-
-    Vehicle v = cargo.pop();
-    v.mutatePoint(getX() - 1.0, getY());
+  public Vehicle releaseTop() {
+    return cargo.isEmpty() ? null : cargo.pop();
   }
-
-  public void printLoad() {
-    StringBuilder sb = new StringBuilder();
-
-    if (cargo.isEmpty()) sb.append("Cargohold is empty.");
-    for (Vehicle v : cargo) sb.append(v).append('\n');
-    out.println(sb);
-  }
-
-	protected double speedFactor() { return getEnginePower() * 0.01d; }
 
   @Override
   public void move() {
+    if (!canMove()) return;
     super.move();
-    for (Vehicle v : cargo) {
-      v.mutatePoint(getX(), getY());
-    }
+    for (Vehicle v : cargo) v.mutatePoint(getX(), getY());
   }
 
-  @Override
-  protected boolean canMove() { return !isRampLowered; }
-
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
-  }
+  @Override protected boolean canMove() { return true; }
+  @Override protected double speedFactor() { return getEnginePower() * 0.01d; }
 }

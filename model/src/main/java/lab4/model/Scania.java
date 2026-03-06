@@ -1,61 +1,61 @@
-/**
- * File: Scania.java
- *
- * API:
- *  setTipBedAngle(byte)
- *  byte getTipBedAngle()
- *  canMove()
- */
-
 package lab4.model;
 
+import lab4.model.interfaces.RampOperated;
 import lab4.model.interfaces.Tippable;
 
 import java.awt.geom.Point2D;
+
 import static java.awt.Color.BLUE;
-
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import static org.apache.commons.lang3.builder.ToStringStyle.MULTI_LINE_STYLE;
-
 import static org.apache.commons.lang3.Validate.isTrue;
 import static org.apache.commons.lang3.Validate.validState;
 
+public final class Scania extends ConditionallyMovableVehicle implements RampOperated, Tippable {
 
-
-public final class Scania extends ConditionallyMovableVehicle implements Tippable {
   private byte tipBedAngle = 0;
+  private boolean rampLowered = false;
 
   public Scania() {
-    super(
-      /* Number of doors */ 2,
-      /* Engine power    */ 200.0d,
-      /* Vehicle color   */ BLUE,
-      /* Vehicle model   */ "Scania",
-      /* X position      */ new Point2D.Double(0.0d, 0.0d)
-     );
-
-    tipBedAngle = 0;
+    super(2, 200.0d, BLUE, "Scania", new Point2D.Double(0.0d, 0.0d));
   }
 
+  // Tippable
+  @Override
   public void setTipBedAngle(final byte angle) {
-    double speed = getCurrentSpeed();
-
     isTrue(0 <= angle && angle <= 70);
-    validState(speed == 0.0d);
-
+    validState(getCurrentSpeed() == 0.0d);
     tipBedAngle = angle;
   }
 
+  @Override
   public byte getTipBedAngle() { return tipBedAngle; }
 
   @Override
-  public boolean canMove() { return tipBedAngle == 0; }
+  protected boolean canMove() {
+    return tipBedAngle == 0 && !rampLowered;
+  }
 
   @Override
   protected double speedFactor() { return getEnginePower() * 0.01d; }
 
+  // RampOperated (and therefore Loadable)
   @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this, MULTI_LINE_STYLE);
+  public void lowerRamp() {
+    if (getCurrentSpeed() != 0.0d) return;
+    rampLowered = true;
   }
+
+  @Override
+  public void raiseRamp() { rampLowered = false; }
+
+  @Override
+  public boolean isRampLowered() { return rampLowered; }
+
+  @Override
+  public boolean canLoad() {
+    return getCurrentSpeed() == 0.0d && rampLowered;
+  }
+
+  @Override public void load() { /* World-owned */ }
+  @Override public void unLoad() { /* World-owned */ }
+  @Override public void printLoad() { /* none */ }
 }

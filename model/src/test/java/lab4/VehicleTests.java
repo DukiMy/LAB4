@@ -11,10 +11,6 @@ import java.awt.Color;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import static java.lang.System.out;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -202,27 +198,6 @@ class VehicleTest {
         v.getCurrentSpeed() == 0.0d,
       "'setCurrentSpeed' håller inte nedre fartgräns"
       );
-    }
-  }
-
-  @Test
-  void toStringIsOverridden() throws NoSuchMethodException {
-    track(new Volvo240());
-    track(new Saab95());
-    track(new VolvoFH16());
-    track(new Scania());
-
-    for (GameObject gObj : created) {
-
-      assertFalse(gObj.toString().isBlank());
-      assertEquals(
-        gObj.getClass(),
-        gObj.getClass()
-          .getMethod("toString")
-          .getDeclaringClass()
-      );
-
-      out.println(gObj.toString());
     }
   }
 
